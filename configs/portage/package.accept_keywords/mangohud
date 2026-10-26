@@ -1,0 +1,2 @@
+# /etc/portage/package.accept_keywords/mangohud
+games-util/mangohud ~amd64

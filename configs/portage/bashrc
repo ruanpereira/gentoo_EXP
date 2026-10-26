@@ -1,0 +1,16 @@
+# /etc/portage/bashrc
+# Hook automático de snapshots Btrfs para o Portage
+
+pre_pkg_setup() {
+    if [[ ! -f /tmp/.portage_snapshot_taken ]]; then
+        if command -v btrfs >/dev/null 2>&1 && [[ -d /.snapshots ]]; then
+            DATE=$(date +%Y%m%d_%H%M%S)
+            btrfs subvolume snapshot -r / "/.snapshots/pre-emerge-${DATE}" 2>/dev/null || true
+            touch /tmp/.portage_snapshot_taken
+        fi
+    fi
+}
+
+post_pkg_postinst() {
+    rm -f /tmp/.portage_snapshot_taken
+}

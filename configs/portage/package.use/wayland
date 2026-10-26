@@ -1,0 +1,3 @@
+# /etc/portage/package.use/wayland
+gui-wm/niri xwayland
+games-util/mangohud wayland

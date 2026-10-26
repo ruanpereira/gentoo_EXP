@@ -1,15 +1,36 @@
-# Artifacts and temporary build files
+# Contexto e Planos de Implementação (Handover Interno)
+AGENT_CONTEXT_BRIEFING.md
+PLANO_DE_IMPLEMENTACAO.md
+
+# Arquivos de imagem e tarballs pesados
 *.iso
 *.tar.xz
 *.tar.gz
 *.tar.bz2
+*.img
+*.qcow2
+
+# Árvore temporária de compilação e caches do Portage
 distfiles/
 packages/
 rootfs/
 tmp/
 .cache/
 
-# OS and Editor metadata
+# Ambientes virtuais Python (uv / venv)
+.venv/
+__pycache__/
+*.pyc
+
+# Chaves privadas e credenciais (NUNCA commitadas)
+*.key
+*.priv
+id_ed25519
+id_rsa
+gentoo-aktsu
+!gentoo-aktsu.pub
+
+# Metadados de editores e OS
 .DS_Store
 Thumbs.db
 *.swp

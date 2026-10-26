@@ -1,0 +1,35 @@
+name: Gentoo CI - Validação Binária & Regras
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-binary-install:
+    name: Validação Portage e Binhost v3
+    runs-on: ubuntu-latest
+    container:
+      image: gentoo/stage3:latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Sincronização Leve do Portage
+        run: emerge-webrsync
+
+      - name: Aplicar Configurações e USE Flags
+        run: |
+          mkdir -p /etc/portage/package.use /etc/portage/package.accept_keywords /etc/portage/binrepos.conf
+          cp configs/portage/make.conf /etc/portage/make.conf
+          cp configs/portage/bashrc /etc/portage/bashrc
+          cp configs/portage/package.license /etc/portage/package.license
+          cp -r configs/portage/binrepos.conf/* /etc/portage/binrepos.conf/ || true
+          cp -r configs/portage/package.use/* /etc/portage/package.use/ || true
+          cp -r configs/portage/package.accept_keywords/* /etc/portage/package.accept_keywords/ || true
+
+      - name: Validar Resolução de Pacotes e Binários Oficiais (@world)
+        run: |
+          chmod +x configs/scripts/test-configs.sh
+          ./configs/scripts/test-configs.sh

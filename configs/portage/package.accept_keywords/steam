@@ -1,0 +1,2 @@
+# /etc/portage/package.accept_keywords/steam
+games-util/steam-launcher ~amd64
