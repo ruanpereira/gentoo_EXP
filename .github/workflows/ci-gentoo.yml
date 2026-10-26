@@ -14,7 +14,7 @@ jobs:
       image: gentoo/stage3:latest
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Sincronização Leve do Portage
         run: emerge-webrsync
@@ -33,3 +33,20 @@ jobs:
         run: |
           chmod +x configs/scripts/test-configs.sh
           ./configs/scripts/test-configs.sh
+
+  validate-niri-config:
+    name: Validação de Configuração do Niri
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v7
+
+      - name: Instalar Niri
+        run: |
+          pacman -Sy --noconfirm niri
+
+      - name: Validar Configuração do Niri
+        run: |
+          niri validate -c configs/niri/config.kdl

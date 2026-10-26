@@ -31,16 +31,20 @@ gentoo_EXP/
 ├── configs/
 │   ├── portage/                    # Espelho fiel de /etc/portage/
 │   │   ├── make.conf               # CFLAGS (znver3/v3), MAKEOPTS (-j12), FEATURES
+│   │   ├── binrepos.conf/          # Configuração de binhost oficial x86-64-v3
 │   │   ├── bashrc                  # Hook automático de snapshots Btrfs
 │   │   ├── package.use/            # USE flags por pacote
 │   │   ├── package.accept_keywords/# Desmascaramento (~amd64)
 │   │   └── package.license         # Licenças aceitas
+│   ├── niri/                       # Configurações do Wayland compositor Niri
+│   │   ├── config.kdl              # Arquivo principal de inicialização
+│   │   └── cfg/                    # Binds, regras, monitores e layout
 │   └── scripts/
+│       ├── bootstrap-binary.sh     # Script para instalação rápida via binhost oficial
 │       ├── sync-portage.sh         # Sincroniza /etc/portage <-> repositório
 │       └── test-configs.sh         # Script de validação para CI ou container
 ├── docs/                           # Documentação passo a passo detalhada
 ├── .gitignore                      # Exclusão de arquivos pesados e temporários
-├── AGENT_CONTEXT_BRIEFING.md       # Contexto executivo completo de handover
 ├── LICENSE                         # Licença GNU General Public License v3.0
 └── README.md                       # Visão geral do repositório
 ```
