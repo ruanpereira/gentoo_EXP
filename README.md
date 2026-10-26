@@ -41,6 +41,7 @@ gentoo_EXP/
 ├── docs/                           # Documentação passo a passo detalhada
 ├── .gitignore                      # Exclusão de arquivos pesados e temporários
 ├── AGENT_CONTEXT_BRIEFING.md       # Contexto executivo completo de handover
+├── LICENSE                         # Licença GNU General Public License v3.0
 └── README.md                       # Visão geral do repositório
 ```
 
@@ -49,3 +50,10 @@ gentoo_EXP/
 ## 🤖 Validação Contínua (GitHub Actions)
 
 O repositório possui uma esteira automatizada em `.github/workflows/ci-gentoo.yml` que roda dentro do container oficial `gentoo/stage3:latest`, consumindo o binhost oficial `x86-64-v3` para validar todas as configurações em **3 a 5 minutos**, garantindo que nenhum pacote ou USE flag quebre as regras do sistema.
+
+---
+
+## 📜 Licença
+
+Este projeto está licenciado sob os termos da [GNU General Public License v3.0](LICENSE) (GPLv3).
+
