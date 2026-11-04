@@ -12,7 +12,7 @@ Este repositório documenta o processo completo de instalação, personalizaçã
 | **Placa de Vídeo** | AMD Radeon RX 6600 (Navi 23, `VIDEO_CARDS="amdgpu radeonsi"`) |
 | **Init & Profile** | OpenRC \| Profile Padrão `default/linux/amd64/23.0` |
 | **Filesystem & Snapshots**| Btrfs (`@`, `@home`, `@var_log`, `@snapshots`) com snapshots automáticos por `emerge` |
-| **Ambiente Gráfico** | Wayland Nativo com **Niri** (WM Tiling) + **Noctalia Suite** (Shell & Greeter) |
+| **Ambiente Gráfico** | Wayland Nativo com **Niri** (WM Tiling) + **Ly** (Display Manager TUI) |
 | **Navegadores & Senhas** | Zen Browser (`zen-bin`), Helium Browser (AppImage) e KeePassXC |
 | **Rede & DNS** | Firewalld, Libvirt/QEMU com trânsito irrestrito e DNS Quad9 estrito (IPv4, IPv6, DoT e DoH) |
 | **Desenvolvimento** | Neovim, VSCodium (`vscodium-bin`), LaTeX (`texlive-core`), Python e `uv` |

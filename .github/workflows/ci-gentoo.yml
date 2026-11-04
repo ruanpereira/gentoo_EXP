@@ -7,31 +7,40 @@ on:
     branches: [ main ]
 
 jobs:
-  validate-binary-install:
-    name: Validação Portage e Binhost v3
+  validate-scripts:
+    name: Validação de Sintaxe dos Scripts
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v7
+
+      - name: Verificar Sintaxe dos Scripts Shell
+        run: |
+          for script in configs/scripts/*.sh; do
+            bash -n "$script" || exit 1
+            echo "✓ $script: sintaxe válida"
+          done
+
+  validate-binary-install:
+    name: Validação Portage e Binhost x86-64-v3
+    runs-on: ubuntu-latest
+    needs: validate-scripts
     container:
       image: gentoo/stage3:latest
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v7
 
-      - name: Sincronização Leve do Portage
+      - name: Sincronização do Snapshot Portage
         run: emerge-webrsync
 
-      - name: Aplicar Configurações e USE Flags
+      - name: Aplicar Configurações e Árvore Portage
         run: |
-          mkdir -p /etc/portage/package.use /etc/portage/package.accept_keywords /etc/portage/binrepos.conf
-          cp configs/portage/make.conf /etc/portage/make.conf
-          cp configs/portage/bashrc /etc/portage/bashrc
-          cp configs/portage/package.license /etc/portage/package.license
-          cp -r configs/portage/binrepos.conf/* /etc/portage/binrepos.conf/ || true
-          cp -r configs/portage/package.use/* /etc/portage/package.use/ || true
-          cp -r configs/portage/package.accept_keywords/* /etc/portage/package.accept_keywords/ || true
+          chmod +x configs/scripts/*.sh
+          ./configs/scripts/sync-portage.sh to-system
 
-      - name: Validar Resolução de Pacotes e Binários Oficiais (@world)
+      - name: Validar Resolução da Esteira Binária
         run: |
-          chmod +x configs/scripts/test-configs.sh
           ./configs/scripts/test-configs.sh
 
   validate-niri-config:

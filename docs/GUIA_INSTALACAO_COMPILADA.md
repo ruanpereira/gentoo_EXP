@@ -11,7 +11,8 @@ Este guia documenta o processo completo para instalar o **Gentoo Linux** compila
 * **Init & Profile:** OpenRC (`default/linux/amd64/23.0`)
 * **Sistema de Arquivos:** Btrfs com subvolumes (`@`, `@home`, `@var_log`, `@snapshots`)
 * **Bootloader:** GRUB 2 em modo UEFI (`GRUB_PLATFORMS="efi-64"`)
-* **Ambiente Gráfico:** Niri (Tiling Wayland) + Noctalia Suite
+* **Display Manager / Greeter:** Ly (`x11-misc/ly` TUI display manager)
+* **Ambiente Gráfico:** Niri (Tiling Wayland)
 
 ---
 
@@ -161,15 +162,16 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Gentoo
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-### 5.3. Rede, Daemons de Sistema e Elevação com `doas`
+### 5.3. Rede, Daemons de Sistema, Sessões e Elevação com `doas`
 ```bash
-# Serviços base
-emerge --ask app-admin/sysklogd net-misc/chrony net-misc/dhcpcd net-firewall/firewalld app-admin/doas
+# Serviços base e gerenciamento de assentos de sessão (elogind)
+emerge --ask app-admin/sysklogd net-misc/chrony net-misc/dhcpcd net-firewall/firewalld sys-auth/elogind app-admin/doas
 
 rc-update add sysklogd default
 rc-update add chronyd default
 rc-update add dhcpcd default
 rc-update add firewalld default
+rc-update add elogind boot
 
 # Configurar doas
 echo "permit persist :wheel" > /etc/doas.conf
@@ -178,16 +180,51 @@ chmod 400 /etc/doas.conf
 
 ---
 
-## 🎨 Fase 6: Ambiente Wayland (Niri) e Configurações
+## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
 ### 6.1. Drivers Gráficos, Mesa e Niri
 ```bash
 emerge --ask media-libs/mesa x11-libs/libxkbcommon gui-wm/niri
+
+# Garantir a sessão Wayland para que o Ly detecte o Niri automaticamente
+mkdir -p /usr/share/wayland-sessions
+cat << 'EOF' > /usr/share/wayland-sessions/niri.desktop
+[Desktop Entry]
+Name=Niri
+Comment=Scrollable-tiling Wayland compositor
+Exec=niri-session
+Type=Application
+DesktopNames=niri
+EOF
 ```
 
-### 6.2. Copiar dotfiles do Niri para o usuário
+### 6.2. Instalação e Configuração do Display Manager Ly
+O **Ly** é um display manager TUI leve e minimalista mantido no overlay oficial da comunidade (GURU).
+
 ```bash
-useradd -m -G wheel,audio,video,input -s /bin/bash usuario
+# Habilitar o gerenciador de repositórios e o overlay GURU
+emerge --ask app-eselect/eselect-repository
+eselect repository enable guru
+emaint sync -r guru
+
+# Instalar o Ly
+emerge --ask x11-misc/ly
+
+# Habilitar o serviço do Ly no OpenRC
+rc-update add ly default
+
+# ⚠️ GARANTIR FUNCIONALIDADE (Evitar conflito de TTY):
+# Por padrão, o Ly roda no tty2. O OpenRC executa um agetty no tty2 por padrão no /etc/inittab.
+# Se ambos rodarem simultaneamente no mesmo TTY, haverá conflito de tela/teclado.
+# Desative o agetty no tty2 comentando a linha c2:
+sed -i 's/^c2:/#c2:/' /etc/inittab
+rc-update del agetty.tty2 default 2>/dev/null || true
+```
+
+### 6.3. Criação de Usuário e Dotfiles do Niri
+```bash
+# Adicionar usuário aos grupos essenciais (incluindo 'seat' e 'video' para Wayland/Ly)
+useradd -m -G wheel,audio,video,input,seat -s /bin/bash usuario
 passwd usuario
 
 mkdir -p /home/usuario/.config/niri
@@ -207,4 +244,4 @@ umount -R /mnt
 reboot
 ```
 
-Ao reiniciar, seu Gentoo estará inicializado via OpenRC sobre Btrfs com snapshots automáticos por transação e o compositor Niri totalmente pronto para uso.
+Ao reiniciar, seu Gentoo inicializará o display manager **Ly** no TTY2. Basta selecionar a sessão **Niri**, inserir seu login e senha para entrar diretamente no ambiente Wayland sobre Btrfs com snapshots automáticos por transação.
