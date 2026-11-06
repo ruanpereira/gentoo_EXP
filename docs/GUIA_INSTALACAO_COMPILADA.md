@@ -171,7 +171,7 @@ Como o `/etc/fstab` foi gerado na Fase 2.2 com o utilitário `genfstab`, todos o
 Instale as ferramentas de suporte a filesystem e valide o conteúdo do arquivo:
 
 ```bash
-emerge --ask sys-fs/btrfs-progs sys-apps/dosfstools
+emerge --ask sys-fs/btrfs-progs sys-fs/dosfstools
 
 # Visualizar e conferir o fstab gerado:
 cat /etc/fstab

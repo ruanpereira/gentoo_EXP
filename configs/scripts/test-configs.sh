@@ -85,7 +85,7 @@ INSTALL_PKGS=(
     "sys-kernel/gentoo-kernel-bin"
     # Fase 5: Filesystem, Bootloader, Rede e Serviços
     "sys-fs/btrfs-progs"
-    "sys-apps/dosfstools"
+    "sys-fs/dosfstools"
     "sys-boot/grub"
     "app-admin/sysklogd"
     "net-misc/chrony"

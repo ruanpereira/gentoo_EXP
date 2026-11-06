@@ -184,7 +184,7 @@ Instale as ferramentas de suporte a filesystem e valide o conteúdo do arquivo:
 
 ```bash
 # Instalar utilitários de filesystem
-emerge --ask --getbinpkg sys-fs/btrfs-progs sys-apps/dosfstools
+emerge --ask --getbinpkg sys-fs/btrfs-progs sys-fs/dosfstools
 
 # Visualizar e conferir o fstab gerado:
 cat /etc/fstab
