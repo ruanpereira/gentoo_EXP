@@ -11,7 +11,7 @@ O modo binário permite inicializar e configurar o sistema completo em **poucos 
 * **Arquitetura & CPU:** AMD Ryzen 5 5600XT (Zen 3, compatível com conjunto de instruções `x86-64-v3`, 12 threads)
 * **GPU:** AMD Radeon RX 6600 (`VIDEO_CARDS="amdgpu radeonsi"`)
 * **Init & Profile:** OpenRC (`default/linux/amd64/23.0`)
-* **Binhost Oficial:** Repositório oficial do Gentoo `x86-64-v3` com verificação criptográfica GPG (`FEATURES="binpkg-request-signature getbinpkg parallel-fetch"`)
+* **Binhost Oficial:** Repositório oficial do Gentoo `x86-64-v3` via CDN Anycast (`https://distfiles.gentoo.org/releases/amd64/binpackages/23.0/x86-64-v3/`) com verificação criptográfica GPG (`verify-signature = true`, `location = /var/cache/binhost/gentoo` e `FEATURES="binpkg-request-signature getbinpkg parallel-fetch"`)
 * **Kernel:** `sys-kernel/gentoo-kernel-bin` (Distribution Kernel oficial pré-compilado com initramfs automatizado)
 * **Sistema de Arquivos:** Btrfs com subvolumes (`@`, `@home`, `@var_log`, `@snapshots`) e compressão transparente `zstd:1`
 * **Bootloader:** GRUB 2 em modo UEFI (`GRUB_PLATFORMS="efi-64"`)
@@ -47,24 +47,26 @@ mkfs.btrfs -L gentoo /dev/nvme0n1p3
 
 ### 1.3. Criar e montar os subvolumes Btrfs
 ```bash
-mount /dev/nvme0n1p3 /mnt
-btrfs subvolume create /mnt/@
-btrfs subvolume create /mnt/@home
-btrfs subvolume create /mnt/@var_log
-btrfs subvolume create /mnt/@snapshots
-umount /mnt
+mkdir -p /mnt/gentoo
+mount /dev/nvme0n1p3 /mnt/gentoo
+btrfs subvolume create /mnt/gentoo/@
+btrfs subvolume create /mnt/gentoo/@home
+btrfs subvolume create /mnt/gentoo/@var_log
+btrfs subvolume create /mnt/gentoo/@snapshots
+umount /mnt/gentoo
 
 # Opções de montagem com compressão zstd otimizada
 MOUNT_OPTS="noatime,compress=zstd:1,space_cache=v2"
 
-mount -o ${MOUNT_OPTS},subvol=@ /dev/nvme0n1p3 /mnt
-mkdir -p /mnt/{boot,home,var/log,.snapshots}
-mount -o ${MOUNT_OPTS},subvol=@home /dev/nvme0n1p3 /mnt/home
-mount -o ${MOUNT_OPTS},subvol=@var_log /dev/nvme0n1p3 /mnt/var/log
-mount -o ${MOUNT_OPTS},subvol=@snapshots /dev/nvme0n1p3 /mnt/.snapshots
+mount -o ${MOUNT_OPTS},subvol=@ /dev/nvme0n1p3 /mnt/gentoo
+mkdir -p /mnt/gentoo/{boot,efi,home,var/log,.snapshots}
+mount -o ${MOUNT_OPTS},subvol=@home /dev/nvme0n1p3 /mnt/gentoo/home
+mount -o ${MOUNT_OPTS},subvol=@var_log /dev/nvme0n1p3 /mnt/gentoo/var/log
+mount -o ${MOUNT_OPTS},subvol=@snapshots /dev/nvme0n1p3 /mnt/gentoo/.snapshots
 
-# Montar partição EFI
-mount /dev/nvme0n1p1 /mnt/boot
+# Montar partição EFI em /efi (separado de /boot, que permanece no Btrfs)
+# Isso permite que /boot seja coberto por snapshots Btrfs (kernels + initramfs incluídos)
+mount /dev/nvme0n1p1 /mnt/gentoo/efi
 ```
 
 ---
@@ -75,29 +77,41 @@ mount /dev/nvme0n1p1 /mnt/boot
 Como o Ryzen 5 5600XT possui suporte a AVX2, FMA3 e BMI2 (`x86-64-v3`), podemos utilizar o tarball otimizado de arquitetura v3 ou o stage3 OpenRC padrão:
 
 ```bash
-cd /mnt
+cd /mnt/gentoo
 
-# Tenta baixar o stage3 x86-64-v3 OpenRC (ou stage3 amd64 openrc padrão)
-wget https://gentoo.osuosl.org/releases/amd64/autobuilds/current-stage3-amd64-x86-64-v3-openrc/stage3-amd64-x86-64-v3-openrc-*.tar.xz || \
-wget https://gentoo.osuosl.org/releases/amd64/autobuilds/current-stage3-amd64-openrc/stage3-amd64-openrc-*.tar.xz
+# Tenta baixar o stage3 x86-64-v3 OpenRC (ou stage3 amd64 openrc padrão) via CDN distfiles
+wget https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-x86-64-v3-openrc/stage3-amd64-x86-64-v3-openrc-*.tar.xz || \
+wget https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-openrc/stage3-amd64-openrc-*.tar.xz
 
 # Descompactar preservando atributos e xattrs
 tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner
 rm stage3-*.tar.xz
 ```
 
-### 2.2. Montar sistemas de arquivos virtuais e entrar no Chroot
-```bash
-cp --dereference /etc/resolv.conf /mnt/etc/
-mount --types proc /proc /mnt/proc
-mount --rbind /sys /mnt/sys
-mount --make-rslave /mnt/sys
-mount --rbind /dev /mnt/dev
-mount --make-rslave /mnt/dev
-mount --bind /run /mnt/run
-mount --make-slave /mnt/run
+### 2.2. Geração do Fstab e Entrada no Chroot (`arch-chroot`)
+Antes de entrar no chroot, copie o DNS e gere automaticamente o arquivo `/etc/fstab` com os UUIDs de todos os subvolumes e partições montados utilizando o utilitário `genfstab` (disponível no LiveUSB do Arch Linux/CachyOS via `arch-install-scripts`):
 
-chroot /mnt /bin/bash
+> [!IMPORTANT]
+> O `genfstab` captura **apenas as partições que estão montadas no momento da execução**. Certifique-se de que a partição EFI já está montada em `/mnt/gentoo/efi` antes de prosseguir — caso contrário ela não será incluída no `fstab` gerado e o sistema não conseguirá montar a EFI no boot.
+>
+> Se necessário, monte-a agora:
+> ```bash
+> # Verificar se a EFI já está montada
+> mount | grep /mnt/gentoo/efi
+>
+> # Se não estiver, montar (ajuste o dispositivo conforme seu disco)
+> mount /dev/nvme0n1p1 /mnt/gentoo/efi
+> ```
+
+```bash
+# Copiar configuração de DNS
+cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+
+# Gerar o /etc/fstab automaticamente por UUID
+genfstab -U /mnt/gentoo >> /mnt/gentoo/etc/fstab
+
+# Entrar no chroot
+arch-chroot /mnt/gentoo
 source /etc/profile
 export PS1="(chroot) ${PS1}"
 ```
@@ -163,24 +177,23 @@ emerge --ask --getbinpkg sys-kernel/gentoo-kernel-bin
 
 ## 🥾 Fase 5: Fstab, Bootloader (GRUB UEFI) e Ferramentas Base
 
-### 5.1. Configurar `/etc/fstab` com UUIDs
+### 5.1. Ferramentas de Sistema de Arquivos e Verificação do `/etc/fstab`
+Como o `/etc/fstab` foi gerado na Fase 2.2 com o utilitário `genfstab`, todos os UUIDs dos subvolumes Btrfs (`@`, `@home`, `@var_log`, `@snapshots`), partição EFI (`/efi`) e Swap já estão mapeados.
+
+Instale as ferramentas de suporte a filesystem e valide o conteúdo do arquivo:
+
 ```bash
 # Instalar utilitários de filesystem
 emerge --ask --getbinpkg sys-fs/btrfs-progs sys-apps/dosfstools
 
-# Obtenha os UUIDs via 'blkid' e configure /etc/fstab:
-# UUID=<uuid-nvme0n1p3>  /            btrfs  noatime,compress=zstd:1,subvol=@          0 0
-# UUID=<uuid-nvme0n1p3>  /home        btrfs  noatime,compress=zstd:1,subvol=@home      0 0
-# UUID=<uuid-nvme0n1p3>  /var/log     btrfs  noatime,compress=zstd:1,subvol=@var_log   0 0
-# UUID=<uuid-nvme0n1p3>  /.snapshots  btrfs  noatime,compress=zstd:1,subvol=@snapshots 0 0
-# UUID=<uuid-nvme0n1p1>  /boot        vfat   umask=0077                                0 2
-# UUID=<uuid-nvme0n1p2>  none         swap   sw                                        0 0
+# Visualizar e conferir o fstab gerado:
+cat /etc/fstab
 ```
 
 ### 5.2. Instalação do GRUB 2 (UEFI)
 ```bash
 emerge --ask --getbinpkg sys-boot/grub
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Gentoo
+grub-install --target=x86_64-efi --efi-directory=/efi --boot-directory=/boot --bootloader-id=Gentoo
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
@@ -277,8 +290,8 @@ Este comando verifica a sintaxe do `make.conf`, valida os diretórios do Portage
 ```bash
 # Sair do chroot e desmontar partições de forma limpa
 exit
-umount -l /mnt/dev{/shm,/pts,}
-umount -R /mnt
+umount -l /mnt/gentoo/dev{/shm,/pts,} 2>/dev/null || true
+umount -R /mnt/gentoo
 reboot
 ```
 

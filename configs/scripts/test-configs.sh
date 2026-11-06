@@ -54,7 +54,7 @@ fi
 # Validar binrepos.conf
 if [[ -f /etc/portage/binrepos.conf/gentoobinhost.conf ]]; then
     log_ok "Arquivo binrepos.conf/gentoobinhost.conf presente."
-    grep -E "sync-uri|priority" /etc/portage/binrepos.conf/gentoobinhost.conf || true
+    grep -E "sync-uri|priority|location|verify-signature" /etc/portage/binrepos.conf/gentoobinhost.conf || true
 else
     log_warn "binrepos.conf/gentoobinhost.conf não encontrado em /etc/portage/binrepos.conf/."
 fi

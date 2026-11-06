@@ -36,6 +36,7 @@ Este documento consolida a arquitetura técnica, escolhas de software e direcion
 
 ## 🚀 4. Repositório Binário `x86-64-v3`
 
-* Binhost oficial do Gentoo: `https://gentoo.osuosl.org/releases/amd64/binpackages/23.0/x86-64-v3/`
-* Assinatura criptográfica GPG de lançamentos ativada em `FEATURES="binpkg-request-signature getbinpkg"`
+* Binhost oficial do Gentoo: `https://distfiles.gentoo.org/releases/amd64/binpackages/23.0/x86-64-v3/` (via CDN Anycast Fastly)
+* Repositório configurado em `/etc/portage/binrepos.conf/gentoobinhost.conf` com `location = /var/cache/binhost/gentoo` e `verify-signature = true`
+* Assinatura criptográfica GPG de lançamentos ativada em `FEATURES="binpkg-request-signature getbinpkg parallel-fetch"`
 * Compilação nativa reservada para o Kernel e componentes de sistema, com pacotes massivos consumidos via binário (`rust-bin`, `zen-bin`, `vscodium-bin`, `steam`).
