@@ -1,0 +1,2 @@
+# /etc/portage/package.accept_keywords/zen
+www-client/zen-bin ~amd64

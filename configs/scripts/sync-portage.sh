@@ -42,11 +42,12 @@ case "${ACTION}" in
         [[ -d "${SYSTEM_PORTAGE}/package.use" ]]      && cp -r "${SYSTEM_PORTAGE}/package.use/"* "${REPO_PORTAGE}/package.use/" || true
         [[ -d "${SYSTEM_PORTAGE}/package.accept_keywords" ]] && cp -r "${SYSTEM_PORTAGE}/package.accept_keywords/"* "${REPO_PORTAGE}/package.accept_keywords/" || true
 
-        # Modo compilado: sincroniza também package.env e env/
+        # Modo compilado: sincroniza também package.env, env/ e package.mask
         if [[ "${MODE}" == "compiled" ]]; then
-            mkdir -p "${REPO_PORTAGE}/package.env" "${REPO_PORTAGE}/env"
+            mkdir -p "${REPO_PORTAGE}/package.env" "${REPO_PORTAGE}/env" "${REPO_PORTAGE}/package.mask"
             [[ -d "${SYSTEM_PORTAGE}/package.env" ]] && cp -r "${SYSTEM_PORTAGE}/package.env/"* "${REPO_PORTAGE}/package.env/" || true
             [[ -d "${SYSTEM_PORTAGE}/env" ]]         && cp -r "${SYSTEM_PORTAGE}/env/"*         "${REPO_PORTAGE}/env/"         || true
+            [[ -d "${SYSTEM_PORTAGE}/package.mask" ]] && cp -r "${SYSTEM_PORTAGE}/package.mask/"* "${REPO_PORTAGE}/package.mask/" || true
         fi
 
         echo "[OK] Sincronização para repositório (${MODE}) concluída."
@@ -75,11 +76,12 @@ case "${ACTION}" in
         cp -r "${REPO_PORTAGE}/package.use/"*   "${SYSTEM_PORTAGE}/package.use/"   || true
         cp -r "${REPO_PORTAGE}/package.accept_keywords/"* "${SYSTEM_PORTAGE}/package.accept_keywords/" || true
 
-        # Modo compilado: aplica também package.env e env/
+        # Modo compilado: aplica também package.env, env/ e package.mask
         if [[ "${MODE}" == "compiled" ]]; then
-            mkdir -p "${SYSTEM_PORTAGE}/package.env" "${SYSTEM_PORTAGE}/env"
+            mkdir -p "${SYSTEM_PORTAGE}/package.env" "${SYSTEM_PORTAGE}/env" "${SYSTEM_PORTAGE}/package.mask"
             cp -r "${REPO_PORTAGE}/package.env/"* "${SYSTEM_PORTAGE}/package.env/" || true
             cp -r "${REPO_PORTAGE}/env/"*         "${SYSTEM_PORTAGE}/env/"         || true
+            [[ -d "${REPO_PORTAGE}/package.mask" ]] && cp -r "${REPO_PORTAGE}/package.mask/"* "${SYSTEM_PORTAGE}/package.mask/" || true
         fi
 
         echo "[OK] Sincronização para /etc/portage (${MODE}) concluída."

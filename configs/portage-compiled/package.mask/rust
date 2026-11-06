@@ -1,0 +1,2 @@
+# Forçar virtual/rust a sempre escolher dev-lang/rust-bin em vez de compilar o rust do zero (~1-2h)
+dev-lang/rust

@@ -1,0 +1,7 @@
+# /etc/portage/package.license
+# Aceitação de licenças para pacotes proprietários ou redistribuíveis
+
+games-util/steam-launcher Valve-Steam-Software-License
+www-client/zen-bin MPL-2.0
+app-editors/vscodium-bin MIT
+sys-kernel/linux-firmware @BINARY-REDISTRIBUTABLE

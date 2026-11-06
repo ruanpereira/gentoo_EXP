@@ -1,0 +1,6 @@
+# /etc/portage/package.use/kernel
+# dracut: necessário para que o installkernel gere o initramfs automaticamente
+# ao instalar/atualizar o gentoo-kernel-bin (USE=initramfs).
+# Sem initramfs, o kernel não consegue carregar os módulos Btrfs antes de montar
+# o sistema de arquivos raiz → sistema não boota.
+sys-kernel/installkernel dracut
