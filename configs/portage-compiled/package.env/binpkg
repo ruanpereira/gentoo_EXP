@@ -1,0 +1,10 @@
+# /etc/portage/package.env/binpkg
+# Pacotes que devem ser SEMPRE obtidos como binário no modo compilado híbrido.
+# Razão: não há ganho prático em compilar estes pacotes nativamente —
+#   zen-bin:        navegador pré-empacotado, não tem ebuild fonte
+#   steam-launcher: launcher proprietário, sem código-fonte compilável
+#   rust-bin:       toolchain Rust de ~1h de compilação, binário oficial idêntico
+
+www-client/zen-bin          binpkg.conf
+games-util/steam-launcher   binpkg.conf
+dev-lang/rust-bin           binpkg.conf

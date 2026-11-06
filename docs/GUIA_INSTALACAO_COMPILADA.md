@@ -115,14 +115,23 @@ export PS1="(chroot) ${PS1}"
 emerge-webrsync
 ```
 
-### 3.2. Clonar o repositório dentro do sistema
+### 3.2. Clonar o repositório e aplicar configurações do modo compilado híbrido
 ```bash
 emerge --ask dev-vcs/git
 git clone https://github.com/ruanpereira/gentoo_EXP.git /root/gentoo_EXP
 
-# Aplicar configurações de /etc/portage
-/root/gentoo_EXP/configs/scripts/sync-portage.sh to-system
+# Aplicar configurações do modo compilado híbrido em /etc/portage
+/root/gentoo_EXP/configs/scripts/sync-portage.sh to-system compiled
 ```
+
+> [!NOTE]
+> O modo **compilado híbrido** usa `configs/portage-compiled/` em vez de `configs/portage/`.
+> Diferenças em relação ao modo binário:
+> - `make.conf` sem `getbinpkg` global — tudo compila nativamente com `-march=znver3`
+> - `package.env/binpkg` + `env/binpkg.conf`: exceções binárias para pacotes sem valor de recompilação:
+>   - `www-client/zen-bin` — navegador pré-empacotado (sem ebuild fonte)
+>   - `games-util/steam-launcher` — launcher proprietário
+>   - `dev-lang/rust-bin` — toolchain Rust (~1h de compilação, binário oficial idêntico)
 
 ### 3.3. Configurar Timezone, Locales e Keymap
 ```bash
