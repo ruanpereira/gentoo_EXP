@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # configs/scripts/test-configs.sh
 # Validação detalhada das configurações do Portage e resolução da esteira binária (x86-64-v3)
+# Simula uma instalação real completa em modo --pretend, incluindo deps transitivas e USE flags.
 
 set -euo pipefail
 
@@ -72,29 +73,75 @@ if [[ -d /etc/portage/package.accept_keywords ]]; then
     ls -1 /etc/portage/package.accept_keywords | sed 's/^/      - /'
 fi
 
-# 3. Teste de Resolução de Binários do Sistema Base (@world)
-log_section "3. Simulação de Resolução Binária do Sistema Base (@world)"
-log_info "Executando emerge pretend em @world com prioridade a pacotes binários..."
+# 3. Simulação completa da instalação binária (todos os pacotes do guia)
+# Inclui deps transitivas com --deep e --with-bdeps=y para pegar conflitos
+# de USE flags em dependências indiretas (ex: installkernel[dracut], libglvnd[X])
+log_section "3. Simulação Completa da Instalação Binária (Guia Fase 4 + 5 + 6)"
+log_info "Executando emerge --pretend com grafo completo de dependências..."
 
-emerge --pretend --verbose --deep --newuse --getbinpkg --binpkg-respect-use=y @world
-log_ok "Cálculo de dependências do @world resolvido com sucesso via Binhost!"
-
-# 4. Teste de Resolução dos Pacotes Críticos da Instalação Binária
-log_section "4. Verificação de Pacotes Críticos do Sistema Alvo"
-log_info "Validando disponibilidade e dependências dos componentes principais..."
-
-TARGET_PKGS=(
-    "sys-kernel/gentoo-kernel-bin"
+INSTALL_PKGS=(
+    # Fase 4: Kernel e Firmware
     "sys-kernel/linux-firmware"
+    "sys-kernel/gentoo-kernel-bin"
+    # Fase 5: Filesystem, Bootloader, Rede e Serviços
     "sys-fs/btrfs-progs"
+    "sys-apps/dosfstools"
     "sys-boot/grub"
+    "app-admin/sysklogd"
+    "net-misc/chrony"
+    "net-misc/dhcpcd"
+    "net-firewall/firewalld"
     "sys-auth/elogind"
     "app-admin/doas"
+    # Fase 6: Wayland, Mesa, Niri e Ly
     "media-libs/mesa"
+    "x11-libs/libxkbcommon"
+    "gui-wm/niri"
+    "x11-misc/ly"
+    # Utilitários base
+    "dev-vcs/git"
+    "app-eselect/eselect-repository"
 )
 
-log_info "Simulando resolução para: ${TARGET_PKGS[*]}"
-emerge --pretend --quiet --getbinpkg --binpkg-respect-use=y "${TARGET_PKGS[@]}"
-log_ok "Todos os pacotes críticos do sistema alvo foram resolvidos sem conflitos!"
+log_info "Pacotes alvo: ${INSTALL_PKGS[*]}"
+
+# --deep:               resolve grafo completo de deps transitivas
+# --newuse:             detecta pacotes que precisam ser recompilados por mudança de USE
+# --with-bdeps=y:       inclui dependências de build no grafo
+# --getbinpkg:          prioriza binários do binhost
+# --binpkg-respect-use=y: rejeita binários com USE flags incompatíveis (força recompilação ou erro)
+# --backtrack=100:      aumenta tentativas de resolução antes de desistir
+# --verbose-conflicts:  exibe detalhes de qualquer conflito de USE flags ou versão
+emerge \
+    --pretend \
+    --verbose \
+    --deep \
+    --newuse \
+    --with-bdeps=y \
+    --getbinpkg \
+    --binpkg-respect-use=y \
+    --backtrack=100 \
+    --verbose-conflicts \
+    "${INSTALL_PKGS[@]}"
+
+log_ok "Grafo completo de dependências resolvido sem conflitos de USE flags!"
+
+# 4. Validação do @world com as configurações aplicadas
+log_section "4. Validação do @world com Configurações do Repositório"
+log_info "Verificando que nenhum pacote do @world exige recompilação por conflito de USE..."
+
+emerge \
+    --pretend \
+    --verbose \
+    --update \
+    --deep \
+    --newuse \
+    --with-bdeps=y \
+    --getbinpkg \
+    --binpkg-respect-use=y \
+    --backtrack=100 \
+    @world
+
+log_ok "@world resolvido sem conflitos via Binhost x86-64-v3!"
 
 echo -e "\n${GREEN}${BOLD}✔ Todas as validações da esteira binária foram concluídas com êxito!${NC}\n"
