@@ -59,3 +59,13 @@ O repositório suporta dois perfis de Portage isolados e versionados:
      - `games-util/steam-launcher`: launcher de jogos;
      - `dev-lang/rust-bin`: evita 1-2h de compilação da toolchain Rust sem perda de performance.
    - Bloqueio via `package.mask/rust` (`dev-lang/rust`) para garantir que o Portage resolva dependências Rust diretamente pelo `rust-bin`.
+
+---
+
+## 🎵 6. Áudio (PipeWire) e Compatibilidade Wayland/X11
+
+* **Servidor de Áudio:** PipeWire (`media-video/pipewire[sound-server,pipewire-alsa]`) com WirePlumber (`media-video/wireplumber`).
+  - Substitui o daemon PulseAudio tradicional enquanto fornece emulação completa de sockets PulseAudio (`pipewire-pulse`) e ALSA (`pipewire-alsa`).
+  - No OpenRC, inicializado na sessão do usuário via `gentoo-pipewire-launcher` no autostart do Niri (`configs/niri/cfg/autostart.kdl`).
+* **Interface Gráfica de Áudio:** Pavucontrol (`media-sound/pavucontrol`) para gerenciamento e mixagem de volume.
+* **Compatibilidade X11 no Wayland:** O compositor Niri gerencia janelas X11 sob demanda via `gui-apps/xwayland-satellite` (`::guru`) e `x11-base/xwayland`.

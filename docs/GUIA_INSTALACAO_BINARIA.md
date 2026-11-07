@@ -218,7 +218,7 @@ chmod 400 /etc/doas.conf
 ## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
 ### 6.1. Habilitar o Repositório Comunitário GURU
-O compositor **Niri**, o display manager **Ly** e o utilitário **brightnessctl** são mantidos no repositório comunitário oficial do Gentoo (**GURU**). Como as palavras-chave `~amd64` já foram adicionadas em `/etc/portage/package.accept_keywords/` na Fase 3, basta habilitar e sincronizar o GURU:
+O compositor **Niri**, o display manager **Ly**, o utilitário **brightnessctl** e a camada de compatibilidade **xwayland-satellite** são mantidos no repositório comunitário oficial do Gentoo (**GURU**). Como as palavras-chave `~amd64` já foram adicionadas em `/etc/portage/package.accept_keywords/` na Fase 3, basta habilitar e sincronizar o GURU:
 
 ```bash
 # Habilitar gerenciador de repositórios e sincronizar o overlay GURU
@@ -227,11 +227,11 @@ eselect repository enable guru
 emaint sync -r guru
 ```
 
-### 6.2. Drivers Gráficos, Mesa, Niri, Display Manager Ly e Utilitários
-Instale a stack gráfica e a interface. Componentes base e drivers Mesa serão obtidos via binários rápidos; Niri, Ly e brightnessctl serão instalados/compilados utilizando as definições do overlay GURU:
+### 6.2. Drivers Gráficos, Mesa, Niri, Display Manager Ly, XWayland e Utilitários
+Instale a stack gráfica, interface e suporte a apps X11 legados. Componentes base e drivers Mesa serão obtidos via binários rápidos; Niri, Ly, brightnessctl e xwayland-satellite serão instalados/compilados utilizando as definições do overlay GURU:
 
 ```bash
-emerge --ask --getbinpkg media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly app-misc/brightnessctl
+emerge --ask --getbinpkg media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly app-misc/brightnessctl gui-apps/xwayland-satellite x11-base/xwayland
 
 # Garantir a sessão Wayland para que o Ly detecte o Niri automaticamente
 mkdir -p /usr/share/wayland-sessions
@@ -257,10 +257,19 @@ rc-update del agetty.tty2 default 2>/dev/null || true
 
 > **Dica:** O Portage busca pacotes binários no binhost oficial. Caso algum pacote possua USE flags personalizadas exclusivas que não batam com o binhost oficial, o Portage compilará apenas aquele pacote pontualmente em segundo plano graças aos 12 threads do Ryzen 5 5600XT.
 
-### 6.3. Criação do Usuário e Aplicação dos Dotfiles do Niri
+### 6.3. Subsistema de Áudio (PipeWire + WirePlumber) e Mixer (Pavucontrol)
+O subsistema de som é inteiramente operado pelo **PipeWire** em conjunto com o gerenciador de sessões **WirePlumber**, fornecendo emulação de ALSA e PulseAudio (`pipewire-pulse`). A interface gráfica de controle é o **Pavucontrol**:
+
 ```bash
-# Criar usuário com permissões completas de hardware, vídeo e sessões (seat)
-useradd -m -G wheel,audio,video,input,seat -s /bin/bash usuario
+emerge --ask --getbinpkg media-video/pipewire media-video/wireplumber media-sound/pavucontrol
+```
+
+> **Nota (OpenRC):** No Gentoo com OpenRC, o PipeWire é iniciado por sessão de usuário. As configurações em `configs/niri/cfg/autostart.kdl` já invocam automaticamente o `gentoo-pipewire-launcher` na inicialização do Niri.
+
+### 6.4. Criação do Usuário e Aplicação dos Dotfiles do Niri
+```bash
+# Criar usuário com permissões completas de hardware, vídeo, áudio, pipewire e sessões (seat)
+useradd -m -G wheel,audio,pipewire,video,input,seat -s /bin/bash usuario
 passwd usuario
 
 mkdir -p /home/usuario/.config/niri

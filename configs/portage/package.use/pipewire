@@ -1,0 +1,4 @@
+# /etc/portage/package.use/pipewire
+# PipeWire como servidor de som principal com emulação PulseAudio e ALSA
+media-video/pipewire sound-server pipewire-alsa
+media-video/wireplumber elogind

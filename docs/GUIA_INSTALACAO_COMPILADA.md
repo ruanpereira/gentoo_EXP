@@ -205,7 +205,7 @@ chmod 400 /etc/doas.conf
 ## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
 ### 6.1. Habilitar o Repositório Comunitário GURU
-O compositor **Niri**, o display manager **Ly** e o utilitário **brightnessctl** são mantidos no overlay comunitário oficial do Gentoo (**GURU**). Como as palavras-chave desmascaradas (`~amd64`) já foram aplicadas na Fase 3, habilite e sincronize o repositório:
+O compositor **Niri**, o display manager **Ly**, o utilitário **brightnessctl** e a camada **xwayland-satellite** são mantidos no overlay comunitário oficial do Gentoo (**GURU**). Como as palavras-chave desmascaradas (`~amd64`) já foram aplicadas na Fase 3, habilite e sincronize o repositório:
 
 ```bash
 # Habilitar o gerenciador de repositórios e o overlay GURU
@@ -214,11 +214,11 @@ eselect repository enable guru
 emaint sync -r guru
 ```
 
-### 6.2. Drivers Gráficos, Mesa, Niri, Display Manager Ly e Utilitários
-Instale a stack gráfica, compositor, greeter e ferramentas de controle:
+### 6.2. Drivers Gráficos, Mesa, Niri, Display Manager Ly, XWayland e Utilitários
+Instale a stack gráfica, compositor, greeter e suporte a compatibilidade X11:
 
 ```bash
-emerge --ask media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly app-misc/brightnessctl
+emerge --ask media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly app-misc/brightnessctl gui-apps/xwayland-satellite x11-base/xwayland
 
 # Garantir a sessão Wayland para que o Ly detecte o Niri automaticamente
 mkdir -p /usr/share/wayland-sessions
@@ -242,10 +242,19 @@ sed -i 's/^c2:/#c2:/' /etc/inittab
 rc-update del agetty.tty2 default 2>/dev/null || true
 ```
 
-### 6.3. Criação de Usuário e Dotfiles do Niri
+### 6.3. Subsistema de Áudio (PipeWire + WirePlumber) e Mixer (Pavucontrol)
+O som do sistema é totalmente gerenciado pelo **PipeWire** acompanhado do **WirePlumber**, provendo compatibilidade ALSA e PulseAudio. O **Pavucontrol** atua como mixer gráfico:
+
 ```bash
-# Adicionar usuário aos grupos essenciais (incluindo 'seat' e 'video' para Wayland/Ly)
-useradd -m -G wheel,audio,video,input,seat -s /bin/bash usuario
+emerge --ask media-video/pipewire media-video/wireplumber media-sound/pavucontrol
+```
+
+> **Nota (OpenRC):** O PipeWire roda sob o contexto de sessão do usuário. O arquivo `configs/niri/cfg/autostart.kdl` inicia automaticamente o `gentoo-pipewire-launcher` na abertura da sessão Wayland.
+
+### 6.4. Criação de Usuário e Dotfiles do Niri
+```bash
+# Adicionar usuário aos grupos essenciais (incluindo 'audio', 'pipewire', 'seat' e 'video')
+useradd -m -G wheel,audio,pipewire,video,input,seat -s /bin/bash usuario
 passwd usuario
 
 mkdir -p /home/usuario/.config/niri

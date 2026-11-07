@@ -1,6 +1,7 @@
 # /etc/portage/package.use/wayland
-gui-wm/niri xwayland
 games-util/mangohud wayland
 # Necessário para satisfazer a dependência do mesa com USE=X (GLX/OpenGL para XWayland)
 # Sem isso: emerge falha com "no ebuilds built with USE flags to satisfy libglvnd[X]"
 media-libs/libglvnd X
+# Necessário para satisfazer a dependência do pango (utilizado pelo Niri)
+media-libs/freetype harfbuzz png
