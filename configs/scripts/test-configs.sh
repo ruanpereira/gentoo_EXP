@@ -77,6 +77,17 @@ fi
 # Inclui deps transitivas com --deep e --with-bdeps=y para pegar conflitos
 # de USE flags em dependências indiretas (ex: installkernel[dracut], libglvnd[X])
 log_section "3. Simulação Completa da Instalação Binária (Guia Fase 4 + 5 + 6)"
+
+# Garantir que o overlay GURU esteja disponível para niri e ly
+if command -v eselect >/dev/null 2>&1; then
+    if ! eselect repository list -i 2>/dev/null | grep -q guru; then
+        log_info "Habilitando overlay GURU para pacotes comunitários (niri, ly)..."
+        emerge --getbinpkg --quiet app-eselect/eselect-repository dev-vcs/git 2>/dev/null || true
+        eselect repository enable guru 2>/dev/null || true
+        emaint sync -r guru 2>/dev/null || true
+    fi
+fi
+
 log_info "Executando emerge --pretend com grafo completo de dependências..."
 
 INSTALL_PKGS=(

@@ -204,9 +204,21 @@ chmod 400 /etc/doas.conf
 
 ## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
-### 6.1. Drivers Gráficos, Mesa e Niri
+### 6.1. Habilitar o Repositório Comunitário GURU
+Tanto o compositor **Niri** quanto o display manager **Ly** são mantidos no overlay comunitário oficial do Gentoo (**GURU**). Como as palavras-chave desmascaradas (`~amd64`) já foram aplicadas na Fase 3, habilite e sincronize o repositório:
+
 ```bash
-emerge --ask media-libs/mesa x11-libs/libxkbcommon gui-wm/niri
+# Habilitar o gerenciador de repositórios e o overlay GURU
+emerge --ask app-eselect/eselect-repository
+eselect repository enable guru
+emaint sync -r guru
+```
+
+### 6.2. Drivers Gráficos, Mesa, Niri e Display Manager Ly
+Instale a stack gráfica, compositor e o greeter:
+
+```bash
+emerge --ask media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly
 
 # Garantir a sessão Wayland para que o Ly detecte o Niri automaticamente
 mkdir -p /usr/share/wayland-sessions
@@ -218,19 +230,6 @@ Exec=niri-session
 Type=Application
 DesktopNames=niri
 EOF
-```
-
-### 6.2. Instalação e Configuração do Display Manager Ly
-O **Ly** é um display manager TUI leve e minimalista mantido no overlay oficial da comunidade (GURU).
-
-```bash
-# Habilitar o gerenciador de repositórios e o overlay GURU
-emerge --ask app-eselect/eselect-repository
-eselect repository enable guru
-emaint sync -r guru
-
-# Instalar o Ly
-emerge --ask x11-misc/ly
 
 # Habilitar o serviço do Ly no OpenRC
 rc-update add ly default

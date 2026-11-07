@@ -217,11 +217,21 @@ chmod 400 /etc/doas.conf
 
 ## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
-### 6.1. Drivers Gráficos, Mesa e Compositor Niri
-Todos os componentes essenciais do Wayland e drivers Mesa serão obtidos via binários rápidos:
+### 6.1. Habilitar o Repositório Comunitário GURU
+Tanto o compositor **Niri** quanto o display manager **Ly** são mantidos no repositório comunitário oficial do Gentoo (**GURU**). Como as palavras-chave `~amd64` já foram adicionadas em `/etc/portage/package.accept_keywords/` na Fase 3, basta habilitar e sincronizar o GURU:
 
 ```bash
-emerge --ask --getbinpkg media-libs/mesa x11-libs/libxkbcommon gui-wm/niri
+# Habilitar gerenciador de repositórios e sincronizar o overlay GURU
+emerge --ask --getbinpkg app-eselect/eselect-repository
+eselect repository enable guru
+emaint sync -r guru
+```
+
+### 6.2. Drivers Gráficos, Mesa, Niri e Display Manager Ly
+Instale a stack gráfica e a interface. Componentes base e drivers Mesa serão obtidos via binários rápidos; Niri e Ly serão compilados utilizando o Rust pré-instalado:
+
+```bash
+emerge --ask --getbinpkg media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly
 
 # Garantir a sessão Wayland para que o Ly detecte o Niri automaticamente
 mkdir -p /usr/share/wayland-sessions
@@ -233,21 +243,6 @@ Exec=niri-session
 Type=Application
 DesktopNames=niri
 EOF
-```
-
-> **Dica:** O Portage busca pacotes binários no binhost oficial. Caso algum pacote possua USE flags personalizadas exclusivas que não batam com o binhost oficial, o Portage compilará apenas aquele pacote pontualmente em segundo plano graças aos 12 threads do Ryzen 5 5600XT.
-
-### 6.2. Instalação e Configuração do Display Manager Ly
-O **Ly** é um display manager TUI extremamente leve e confiável mantido no overlay oficial da comunidade (GURU).
-
-```bash
-# Habilitar o gerenciador de repositórios e sincronizar o overlay GURU
-emerge --ask --getbinpkg app-eselect/eselect-repository
-eselect repository enable guru
-emaint sync -r guru
-
-# Instalar o Ly (o Portage utiliza a palavra-chave desmascarada do repositório gentoo_EXP)
-emerge --ask --getbinpkg x11-misc/ly
 
 # Habilitar o serviço do Ly no OpenRC
 rc-update add ly default
@@ -259,6 +254,8 @@ rc-update add ly default
 sed -i 's/^c2:/#c2:/' /etc/inittab
 rc-update del agetty.tty2 default 2>/dev/null || true
 ```
+
+> **Dica:** O Portage busca pacotes binários no binhost oficial. Caso algum pacote possua USE flags personalizadas exclusivas que não batam com o binhost oficial, o Portage compilará apenas aquele pacote pontualmente em segundo plano graças aos 12 threads do Ryzen 5 5600XT.
 
 ### 6.3. Criação do Usuário e Aplicação dos Dotfiles do Niri
 ```bash
