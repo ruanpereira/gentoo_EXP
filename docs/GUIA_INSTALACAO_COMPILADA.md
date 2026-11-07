@@ -205,7 +205,7 @@ chmod 400 /etc/doas.conf
 ## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
 ### 6.1. Habilitar o Repositório Comunitário GURU
-Tanto o compositor **Niri** quanto o display manager **Ly** são mantidos no overlay comunitário oficial do Gentoo (**GURU**). Como as palavras-chave desmascaradas (`~amd64`) já foram aplicadas na Fase 3, habilite e sincronize o repositório:
+O compositor **Niri**, o display manager **Ly** e o utilitário **brightnessctl** são mantidos no overlay comunitário oficial do Gentoo (**GURU**). Como as palavras-chave desmascaradas (`~amd64`) já foram aplicadas na Fase 3, habilite e sincronize o repositório:
 
 ```bash
 # Habilitar o gerenciador de repositórios e o overlay GURU
@@ -214,11 +214,11 @@ eselect repository enable guru
 emaint sync -r guru
 ```
 
-### 6.2. Drivers Gráficos, Mesa, Niri e Display Manager Ly
-Instale a stack gráfica, compositor e o greeter:
+### 6.2. Drivers Gráficos, Mesa, Niri, Display Manager Ly e Utilitários
+Instale a stack gráfica, compositor, greeter e ferramentas de controle:
 
 ```bash
-emerge --ask media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly
+emerge --ask media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly app-misc/brightnessctl
 
 # Garantir a sessão Wayland para que o Ly detecte o Niri automaticamente
 mkdir -p /usr/share/wayland-sessions

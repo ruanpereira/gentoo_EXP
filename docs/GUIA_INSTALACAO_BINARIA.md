@@ -218,7 +218,7 @@ chmod 400 /etc/doas.conf
 ## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
 ### 6.1. Habilitar o Repositório Comunitário GURU
-Tanto o compositor **Niri** quanto o display manager **Ly** são mantidos no repositório comunitário oficial do Gentoo (**GURU**). Como as palavras-chave `~amd64` já foram adicionadas em `/etc/portage/package.accept_keywords/` na Fase 3, basta habilitar e sincronizar o GURU:
+O compositor **Niri**, o display manager **Ly** e o utilitário **brightnessctl** são mantidos no repositório comunitário oficial do Gentoo (**GURU**). Como as palavras-chave `~amd64` já foram adicionadas em `/etc/portage/package.accept_keywords/` na Fase 3, basta habilitar e sincronizar o GURU:
 
 ```bash
 # Habilitar gerenciador de repositórios e sincronizar o overlay GURU
@@ -227,11 +227,11 @@ eselect repository enable guru
 emaint sync -r guru
 ```
 
-### 6.2. Drivers Gráficos, Mesa, Niri e Display Manager Ly
-Instale a stack gráfica e a interface. Componentes base e drivers Mesa serão obtidos via binários rápidos; Niri e Ly serão compilados utilizando o Rust pré-instalado:
+### 6.2. Drivers Gráficos, Mesa, Niri, Display Manager Ly e Utilitários
+Instale a stack gráfica e a interface. Componentes base e drivers Mesa serão obtidos via binários rápidos; Niri, Ly e brightnessctl serão instalados/compilados utilizando as definições do overlay GURU:
 
 ```bash
-emerge --ask --getbinpkg media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly
+emerge --ask --getbinpkg media-libs/mesa x11-libs/libxkbcommon gui-wm/niri x11-misc/ly app-misc/brightnessctl
 
 # Garantir a sessão Wayland para que o Ly detecte o Niri automaticamente
 mkdir -p /usr/share/wayland-sessions
