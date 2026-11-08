@@ -271,7 +271,7 @@ Para viabilizar captura de tela e áudio no Niri via PipeWire (para OBS Studio, 
 
 ```bash
 # Instalar XDG Desktop Portal, backend GNOME e Vesktop
-emerge --ask --getbinpkg sys-apps/xdg-desktop-portal gui-libs/xdg-desktop-portal-gnome net-im/vesktop-bin
+emerge --ask --getbinpkg sys-apps/xdg-desktop-portal sys-apps/xdg-desktop-portal-gnome net-im/vesktop-bin
 
 # Configurar roteamento do portal para o Niri
 mkdir -p /etc/xdg/xdg-desktop-portal

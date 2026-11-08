@@ -116,7 +116,7 @@ INSTALL_PKGS=(
     "media-video/wireplumber"
     "media-sound/pavucontrol"
     "sys-apps/xdg-desktop-portal"
-    "gui-libs/xdg-desktop-portal-gnome"
+    "sys-apps/xdg-desktop-portal-gnome"
     "net-im/vesktop-bin"
     # Utilitários base
     "dev-vcs/git"

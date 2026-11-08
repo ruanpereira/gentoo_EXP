@@ -256,7 +256,7 @@ Instale o portal desktop para Niri com backend GNOME e o cliente Vesktop para co
 
 ```bash
 # Instalar XDG Desktop Portal, backend GNOME e Vesktop
-emerge --ask sys-apps/xdg-desktop-portal gui-libs/xdg-desktop-portal-gnome net-im/vesktop-bin
+emerge --ask sys-apps/xdg-desktop-portal sys-apps/xdg-desktop-portal-gnome net-im/vesktop-bin
 
 # Configurar roteamento do portal para o Niri
 mkdir -p /etc/xdg/xdg-desktop-portal

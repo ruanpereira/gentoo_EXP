@@ -69,4 +69,4 @@ O repositório suporta dois perfis de Portage isolados e versionados:
   - No OpenRC, inicializado na sessão do usuário via `gentoo-pipewire-launcher` no autostart do Niri (`configs/niri/cfg/autostart.kdl`).
 * **Interface Gráfica de Áudio:** Pavucontrol (`media-sound/pavucontrol`) para gerenciamento e mixagem de volume.
 * **Compatibilidade X11 no Wayland:** O compositor Niri gerencia janelas X11 sob demanda via `gui-apps/xwayland-satellite` (`::guru`) e `x11-base/xwayland`.
-* **Compartilhamento de Tela e Portais:** XDG Desktop Portal (`sys-apps/xdg-desktop-portal`) integrado ao backend GNOME (`gui-libs/xdg-desktop-portal-gnome`) e `gui-wm/niri[screencast]`, viabilizando captura e streaming de vídeo/áudio no OBS Studio, navegadores e Vesktop (`net-im/vesktop-bin`).
+* **Compartilhamento de Tela e Portais:** XDG Desktop Portal (`sys-apps/xdg-desktop-portal`) integrado ao backend GNOME (`sys-apps/xdg-desktop-portal-gnome`) e `gui-wm/niri[screencast]`, viabilizando captura e streaming de vídeo/áudio no OBS Studio, navegadores e Vesktop (`net-im/vesktop-bin`).
