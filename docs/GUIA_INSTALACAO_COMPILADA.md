@@ -205,7 +205,7 @@ chmod 400 /etc/doas.conf
 ## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
 ### 6.1. Habilitar o Repositório Comunitário GURU
-O compositor **Niri**, o display manager **Ly**, o utilitário **brightnessctl** e a camada **xwayland-satellite** são mantidos no overlay comunitário oficial do Gentoo (**GURU**). Como as palavras-chave desmascaradas (`~amd64`) já foram aplicadas na Fase 3, habilite e sincronize o repositório:
+O compositor **Niri**, o display manager **Ly**, o utilitário **brightnessctl**, o **xwayland-satellite** e o **Vesktop** (`net-im/vesktop-bin`) são mantidos no overlay comunitário oficial do Gentoo (**GURU**). Como as palavras-chave desmascaradas (`~amd64`) já foram aplicadas na Fase 3, habilite e sincronize o repositório:
 
 ```bash
 # Habilitar o gerenciador de repositórios e o overlay GURU
@@ -251,7 +251,23 @@ emerge --ask media-video/pipewire media-video/wireplumber media-sound/pavucontro
 
 > **Nota (OpenRC):** O PipeWire roda sob o contexto de sessão do usuário. O arquivo `configs/niri/cfg/autostart.kdl` inicia automaticamente o `gentoo-pipewire-launcher` na abertura da sessão Wayland.
 
-### 6.4. Criação de Usuário e Dotfiles do Niri
+### 6.4. Compartilhamento de Tela (OBS/Navegadores) e Comunicação (Vesktop)
+Instale o portal desktop para Niri com backend GNOME e o cliente Vesktop para compatibilidade com captura de tela e áudio no Wayland:
+
+```bash
+# Instalar XDG Desktop Portal, backend GNOME e Vesktop
+emerge --ask sys-apps/xdg-desktop-portal gui-libs/xdg-desktop-portal-gnome net-im/vesktop-bin
+
+# Configurar roteamento do portal para o Niri
+mkdir -p /etc/xdg/xdg-desktop-portal
+cat << 'EOF' > /etc/xdg/xdg-desktop-portal/niri-portals.conf
+[preferred]
+default=gnome
+org.freedesktop.impl.portal.ScreenCast=gnome
+EOF
+```
+
+### 6.5. Criação de Usuário e Dotfiles do Niri
 ```bash
 # Adicionar usuário aos grupos essenciais (incluindo 'audio', 'pipewire', 'seat' e 'video')
 useradd -m -G wheel,audio,pipewire,video,input,seat -s /bin/bash usuario

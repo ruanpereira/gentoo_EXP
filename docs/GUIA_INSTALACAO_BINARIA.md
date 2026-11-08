@@ -218,7 +218,7 @@ chmod 400 /etc/doas.conf
 ## 🎨 Fase 6: Ambiente Wayland (Niri), Display Manager (Ly) e Configurações
 
 ### 6.1. Habilitar o Repositório Comunitário GURU
-O compositor **Niri**, o display manager **Ly**, o utilitário **brightnessctl** e a camada de compatibilidade **xwayland-satellite** são mantidos no repositório comunitário oficial do Gentoo (**GURU**). Como as palavras-chave `~amd64` já foram adicionadas em `/etc/portage/package.accept_keywords/` na Fase 3, basta habilitar e sincronizar o GURU:
+O compositor **Niri**, o display manager **Ly**, o utilitário **brightnessctl**, o **xwayland-satellite** e o cliente Discord **Vesktop** (`net-im/vesktop-bin`) são mantidos no repositório comunitário oficial do Gentoo (**GURU**). Como as palavras-chave `~amd64` já foram adicionadas em `/etc/portage/package.accept_keywords/` na Fase 3, basta habilitar e sincronizar o GURU:
 
 ```bash
 # Habilitar gerenciador de repositórios e sincronizar o overlay GURU
@@ -266,7 +266,23 @@ emerge --ask --getbinpkg media-video/pipewire media-video/wireplumber media-soun
 
 > **Nota (OpenRC):** No Gentoo com OpenRC, o PipeWire é iniciado por sessão de usuário. As configurações em `configs/niri/cfg/autostart.kdl` já invocam automaticamente o `gentoo-pipewire-launcher` na inicialização do Niri.
 
-### 6.4. Criação do Usuário e Aplicação dos Dotfiles do Niri
+### 6.4. Compartilhamento de Tela (OBS/Navegadores) e Comunicação (Vesktop)
+Para viabilizar captura de tela e áudio no Niri via PipeWire (para OBS Studio, Discord e navegadores), instale o XDG Desktop Portal com backend GNOME e o cliente Vesktop:
+
+```bash
+# Instalar XDG Desktop Portal, backend GNOME e Vesktop
+emerge --ask --getbinpkg sys-apps/xdg-desktop-portal gui-libs/xdg-desktop-portal-gnome net-im/vesktop-bin
+
+# Configurar roteamento do portal para o Niri
+mkdir -p /etc/xdg/xdg-desktop-portal
+cat << 'EOF' > /etc/xdg/xdg-desktop-portal/niri-portals.conf
+[preferred]
+default=gnome
+org.freedesktop.impl.portal.ScreenCast=gnome
+EOF
+```
+
+### 6.5. Criação do Usuário e Aplicação dos Dotfiles do Niri
 ```bash
 # Criar usuário com permissões completas de hardware, vídeo, áudio, pipewire e sessões (seat)
 useradd -m -G wheel,audio,pipewire,video,input,seat -s /bin/bash usuario

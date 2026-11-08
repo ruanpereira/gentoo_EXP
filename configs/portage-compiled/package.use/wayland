@@ -5,3 +5,7 @@ games-util/mangohud wayland
 media-libs/libglvnd X
 # Necessário para satisfazer a dependência do pango (utilizado pelo Niri)
 media-libs/freetype harfbuzz png
+# Necessário para satisfazer a dependência do GTK4 / Pavucontrol
+x11-libs/cairo X
+# Habilitar suporte nativo a screencast no Niri para OBS, Discord/Vesktop e navegadores
+gui-wm/niri screencast

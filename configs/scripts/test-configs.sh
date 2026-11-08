@@ -78,10 +78,10 @@ fi
 # de USE flags em dependências indiretas (ex: installkernel[dracut], libglvnd[X])
 log_section "3. Simulação Completa da Instalação Binária (Guia Fase 4 + 5 + 6)"
 
-# Garantir que o overlay GURU esteja disponível para niri, ly, brightnessctl e xwayland-satellite
+# Garantir que o overlay GURU esteja disponível para niri, ly, brightnessctl, xwayland-satellite e vesktop
 if command -v eselect >/dev/null 2>&1; then
     if ! eselect repository list -i 2>/dev/null | grep -q guru; then
-        log_info "Habilitando overlay GURU para pacotes comunitários (niri, ly, brightnessctl, xwayland-satellite)..."
+        log_info "Habilitando overlay GURU para pacotes comunitários (niri, ly, brightnessctl, xwayland-satellite, vesktop)..."
         emerge --getbinpkg --quiet app-eselect/eselect-repository dev-vcs/git 2>/dev/null || true
         eselect repository enable guru 2>/dev/null || true
         emaint sync -r guru 2>/dev/null || true
@@ -104,7 +104,7 @@ INSTALL_PKGS=(
     "net-firewall/firewalld"
     "sys-auth/elogind"
     "app-admin/doas"
-    # Fase 6: Wayland, Mesa, Niri, Ly, Xwayland, Áudio (PipeWire) e Utilitários
+    # Fase 6: Wayland, Mesa, Niri, Ly, Xwayland, Áudio (PipeWire), Portais e Comunicação
     "media-libs/mesa"
     "x11-libs/libxkbcommon"
     "gui-wm/niri"
@@ -115,6 +115,9 @@ INSTALL_PKGS=(
     "media-video/pipewire"
     "media-video/wireplumber"
     "media-sound/pavucontrol"
+    "sys-apps/xdg-desktop-portal"
+    "gui-libs/xdg-desktop-portal-gnome"
+    "net-im/vesktop-bin"
     # Utilitários base
     "dev-vcs/git"
     "app-eselect/eselect-repository"

@@ -8,3 +8,4 @@
 www-client/zen-bin          binpkg.conf
 games-util/steam-launcher   binpkg.conf
 dev-lang/rust-bin           binpkg.conf
+net-im/vesktop-bin          binpkg.conf
