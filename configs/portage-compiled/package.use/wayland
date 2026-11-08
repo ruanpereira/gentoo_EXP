@@ -9,3 +9,5 @@ media-libs/freetype harfbuzz png
 x11-libs/cairo X
 # Habilitar suporte nativo a screencast no Niri para OBS, Discord/Vesktop e navegadores
 gui-wm/niri screencast
+# Necessário para geração de documentação e manpages do ecossistema Wayland
+app-text/xmlto text
